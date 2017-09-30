@@ -53,7 +53,10 @@ public class ForumPage {
 
     public ForumPage navigateToMajorLeagueFinalCustomization() {
         pageWaitByElement(finalCustLink);
-        driver.findElements(finalCustLink).get(0).click();
+        String url = driver.findElements(finalCustLink).get(0).getAttribute("href");
+        url = url + "?x=20";
+        driver.get(url);
+//        driver.findElements(finalCustLink).get(0).click();
         return new ForumPage(driver);
     }
 
@@ -73,13 +76,16 @@ public class ForumPage {
         By team = By.linkText(teamName);
         try {
             pageWaitByElement(team);
-            driver.findElements(team).get(0).click();
+            String teamPageUrl = driver.findElements(team).get(0).getAttribute("href");
+            teamPageUrl = teamPageUrl + "?x=100";
+            driver.get(teamPageUrl);
+//            driver.findElements(team).get(0).click();
             pageWaitByElement(By.className("c_post"));
             // String url = driver.getCurrentUrl();
-            String url = goToPage(driver.getCurrentUrl(), 1);
+//            String url = goToPage(driver.getCurrentUrl(), 1);
 
             // System.out.println(newUrl.toString());
-            driver.get(url);
+//            driver.get(url);
             // assume it's the team on the 2nd page
         } catch (Exception e) {
             navigateToThreadPage(1);
@@ -93,7 +99,7 @@ public class ForumPage {
     // since I'm the only one using this, remember that the page numbering is 0
     // based
     public ForumPage navigateToThreadPage(int pageNum) {
-        String page = String.valueOf(pageNum + 1);
+        String page = String.valueOf(pageNum +1);
         By pageToNavigateTo = By.partialLinkText(page);
 
         // enforce that only one element is clicked
@@ -107,7 +113,7 @@ public class ForumPage {
         urlPart[urlPart.length - 1] = Integer.toString(pageNum);
         StringBuilder newUrl = new StringBuilder();
         for (String part : urlPart) {
-            newUrl.append(part).append('/');
+            newUrl.append(part).append("/?x=100");
         }
         return newUrl.toString();
     }
