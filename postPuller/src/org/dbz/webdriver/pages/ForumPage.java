@@ -110,11 +110,18 @@ public class ForumPage {
 
     private String goToPage(String url, int pageNum) {
         String[] urlPart = url.split("/");
-        urlPart[urlPart.length - 1] = Integer.toString(pageNum);
+        for(int i = 0; i < urlPart.length; i++) {
+            if(urlPart[i].length() == 1) {
+                urlPart[i] = Integer.toString(pageNum);
+            }
+        }
+        
         StringBuilder newUrl = new StringBuilder();
         for (String part : urlPart) {
-            newUrl.append(part).append("/?x=100");
+            newUrl.append(part).append("/");
         }
+        newUrl.append("?x=100");
+        System.out.println("going to: " + newUrl.toString());
         return newUrl.toString();
     }
 
