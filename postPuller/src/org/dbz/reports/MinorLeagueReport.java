@@ -16,11 +16,11 @@ public class MinorLeagueReport {
 
 
     static {
+        teamList.add("Evolution");
         teamList.add("The Rad Rocketeers");
         teamList.add("Wrestlemania");
         teamList.add("The Frieza Force");
         teamList.add("Little Green Men");
-        teamList.add("Evolution of Evil");
         teamList.add("The Lefties");
         teamList.add("The Baldies");
         teamList.add("Team Shortcake");
@@ -35,24 +35,28 @@ public class MinorLeagueReport {
     }
 	
 	public static void main(String [] args) throws IOException{
-	    System.setProperty("webdriver.chrome.driver", "/media/jordan/Opt/lib/chromedriver");
-		WebDriver fireFoxDriver = new ChromeDriver();
-		
-		ForumPage startPage = new ForumPage(fireFoxDriver);
-		long start_time = new Date().getTime();
-		startPage.start();
-		int weekOfSeason = 3;
-		Map<String, List<String>> builds = startPage.getMinorLeagueTeamBuilds(teamList, weekOfSeason);
-		teardown(fireFoxDriver);
-		long end_time = new Date().getTime();
-		
-		System.out.println("Time to iterate and retrieve build info: " + (end_time - start_time));
-//		for(String team : builds.keySet()){
-//			System.out.println("team: " + team + " and their build: " + builds.get(team));
-//		}
+        System.setProperty("webdriver.chrome.driver", "/media/jordan/Opt/lib/chromedriver");
+//      ChromeOptions options = new ChromeOptions();
+//      options.addArguments("load-extension=/home/jordan/.config/google-chrome/Default/Extensions/gighmmpiobklfepjocnamgkkbiglidom/3.16.0_0");
+//      DesiredCapabilities capabilities = new DesiredCapabilities();
+//      capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+//      ChromeDriver driver = new ChromeDriver(capabilities);
+      WebDriver driver = new ChromeDriver();
+      ForumPage startPage = new ForumPage(driver);
+      long start_time = new Date().getTime();
+      int numWeeksToPull = 15;
+      startPage.start();
+      Map<String, List<String>> builds = startPage.getMinorLeagueTeamBuilds(teamList, numWeeksToPull);
+      teardown(driver);
+      long end_time = new Date().getTime();
+      
+      System.out.println("Time to iterate and retrieve build info: " + (end_time - start_time));
+//    for(String team : builds.keySet()){
+//        System.out.println("team: " + team + " and their build: " + builds.get(team));
+//    }
 
-		ExcelFormatter formatter = new ExcelFormatter();
-		formatter.writeZCastReport(builds, "/media/jordan/Opt/dbz_league/minors/", "preseason week 3.xls");
+      ExcelFormatter formatter = new ExcelFormatter();
+      formatter.writeZCastReport(builds, "/media/jordan/Opt/dbz_league/season 8/", "minors.xls");
 		
 	}
 	

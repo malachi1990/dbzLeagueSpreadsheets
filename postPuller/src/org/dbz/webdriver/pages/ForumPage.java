@@ -22,6 +22,8 @@ public class ForumPage {
 
     private final By minorLeagueCustLink = By.linkText("Minor League Final Customization");
 
+    private static final String postLimit = "?x=100";
+
     public ForumPage() {
 
     }
@@ -73,11 +75,14 @@ public class ForumPage {
     }
 
     public ForumPage navigateToTeamPage(String teamName) throws TimeoutException {
-        By team = By.linkText(teamName);
+        By team = By.partialLinkText(teamName);
         try {
             pageWaitByElement(team);
             String teamPageUrl = driver.findElements(team).get(0).getAttribute("href");
-            teamPageUrl = teamPageUrl + "?x=100";
+            
+            if(!teamPageUrl.contains(postLimit)) {
+                teamPageUrl = teamPageUrl + postLimit;
+            }
             driver.get(teamPageUrl);
 //            driver.findElements(team).get(0).click();
             pageWaitByElement(By.className("c_post"));
@@ -120,7 +125,9 @@ public class ForumPage {
         for (String part : urlPart) {
             newUrl.append(part).append("/");
         }
-        newUrl.append("?x=100");
+        if(!newUrl.toString().contains(postLimit)) {
+            newUrl.append(postLimit);
+        }
         System.out.println("going to: " + newUrl.toString());
         return newUrl.toString();
     }

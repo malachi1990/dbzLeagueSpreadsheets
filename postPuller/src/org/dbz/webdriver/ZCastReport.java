@@ -8,9 +8,7 @@ import java.util.Map;
 
 import org.dbz.webdriver.pages.ForumPage;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class ZCastReport {
     private static List<String> teamList = new ArrayList<>();
@@ -36,19 +34,20 @@ public class ZCastReport {
 
 	
 	public static void main(String [] args) throws IOException{
-        System.setProperty("webdriver.chrome.driver", "/media/jordan/Opt/lib/chromedriver");
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("load-extension=/home/jordan/.config/google-chrome/Default/Extensions/gighmmpiobklfepjocnamgkkbiglidom/3.10.0_0");
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability(ChromeOptions.CAPABILITY, options);
-        ChromeDriver driver = new ChromeDriver(capabilities);
-//        WebDriver driver = new ChromeDriver();
+        System.setProperty("webdriver.gecko.driver", "/media/jordan/Opt/lib/geckodriver");
+//        ChromeOptions options = new ChromeOptions();
+//        options.addArguments("load-extension=/home/jordan/.config/google-chrome/Default/Extensions/gighmmpiobklfepjocnamgkkbiglidom/3.16.0_0");
+//        DesiredCapabilities capabilities = new DesiredCapabilities();
+//        capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+//        ChromeDriver driver = new ChromeDriver(capabilities);
+        WebDriver driver = new FirefoxDriver();
         ForumPage startPage = new ForumPage(driver);
 		long start_time = new Date().getTime();
-        int numWeeksToPull = 15;
+        int numWeeksToPull = 3;
 		startPage.start();
 		Map<String, List<String>> builds = startPage.getMajorLeagueTeamBuilds(teamList, numWeeksToPull);
-		teardown(driver);
+        teardown(driver);
+
 		long end_time = new Date().getTime();
 		
 		System.out.println("Time to iterate and retrieve build info: " + (end_time - start_time));
@@ -57,13 +56,16 @@ public class ZCastReport {
 //		}
 
 		ExcelFormatter formatter = new ExcelFormatter();
-		formatter.writeZCastReport(builds, "/media/jordan/Opt/dbz_league/season 8/", "week15_test.xls");
-		
+		formatter.writeZCastReport(builds, "/media/jordan/Opt/dbz_league/season 9/", "pre-season_week3.xls");
+
 	}
 	
 	public static void teardown(WebDriver driver){
+	    try {
 		driver.close();
 		driver.quit();
-
+	    }catch (Exception e) {
+	        
+	    }
 	}
 }
