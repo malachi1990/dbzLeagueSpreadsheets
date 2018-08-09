@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.dbz.webdriver.pages.ForumPage;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class PostPuller {
 
@@ -41,9 +41,16 @@ public class PostPuller {
      * @throws IOException
      */
 	public static void main(String [] args) throws IOException{
-		System.setProperty("webdriver.chrome.driver", "/media/jordan/Opt/lib/chromedriver");
-		final WebDriver fireFoxDriver = new ChromeDriver();
-		final ForumPage startPage = new ForumPage(fireFoxDriver);
+//		System.setProperty("webdriver.chrome.driver", "/media/jordan/Opt/lib/chromedriver");
+//		final WebDriver fireFoxDriver = new ChromeDriver();
+        System.setProperty("webdriver.gecko.driver", "/media/jordan/Opt/lib/geckodriver");
+//      ChromeOptions options = new ChromeOptions();
+//      options.addArguments("load-extension=/home/jordan/.config/google-chrome/Default/Extensions/gighmmpiobklfepjocnamgkkbiglidom/3.16.0_0");
+//      DesiredCapabilities capabilities = new DesiredCapabilities();
+//      capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+//      ChromeDriver driver = new ChromeDriver(capabilities);
+      WebDriver driver = new FirefoxDriver();		
+      final ForumPage startPage = new ForumPage(driver);
 		final long start_time = new Date().getTime();
 		String filepath = "/media/jordan/Opt/dbz_league/season 8/";
 		String filename = "Cold.xls";
@@ -51,14 +58,14 @@ public class PostPuller {
 		startPage.start();
 		ForumPage finalCustPage =startPage.navigateToMajorLeagueFinalCustomization();
 		ForumPage teamPage = finalCustPage.navigateToTeamPage(teamName);
-		List<String> builds = teamPage.getAllBuilds(10);
+		List<String> builds = teamPage.getAllBuilds(10, 1);
 		
 //		for(String build : builds){
 			//System.out.println(build);
 //			String [] lines = build.split("\\n");
 //			System.out.println("Splitting string by newline delimiter: " +lines.length);
 //		}
-		PostPuller.teardown(fireFoxDriver);
+		PostPuller.teardown(driver);
 		ExcelFormatter poiFormat = new ExcelFormatter();
 		
 		poiFormat.writeSingleTeamBuilds(builds, teamName, filepath, filename);

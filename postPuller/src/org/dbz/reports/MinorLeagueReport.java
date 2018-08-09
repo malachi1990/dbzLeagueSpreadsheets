@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.dbz.webdriver.ExcelFormatter;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.dbz.webdriver.pages.ForumPage;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 
 public class MinorLeagueReport {
     private static List<String> teamList = new ArrayList<>();
@@ -35,14 +35,21 @@ public class MinorLeagueReport {
     }
 	
 	public static void main(String [] args) throws IOException{
-        System.setProperty("webdriver.chrome.driver", "/media/jordan/Opt/lib/chromedriver");
+//        System.setProperty("webdriver.chrome.driver", "/media/jordan/Opt/lib/chromedriver");
 //      ChromeOptions options = new ChromeOptions();
 //      options.addArguments("load-extension=/home/jordan/.config/google-chrome/Default/Extensions/gighmmpiobklfepjocnamgkkbiglidom/3.16.0_0");
 //      DesiredCapabilities capabilities = new DesiredCapabilities();
 //      capabilities.setCapability(ChromeOptions.CAPABILITY, options);
 //      ChromeDriver driver = new ChromeDriver(capabilities);
-      WebDriver driver = new ChromeDriver();
-      ForumPage startPage = new ForumPage(driver);
+//      WebDriver driver = new ChromeDriver();
+        System.setProperty("webdriver.gecko.driver", "/media/jordan/Opt/lib/geckodriver");
+//      ChromeOptions options = new ChromeOptions();
+//      options.addArguments("load-extension=/home/jordan/.config/google-chrome/Default/Extensions/gighmmpiobklfepjocnamgkkbiglidom/3.16.0_0");
+//      DesiredCapabilities capabilities = new DesiredCapabilities();
+//      capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+//      ChromeDriver driver = new ChromeDriver(capabilities);
+      WebDriver driver = new FirefoxDriver();       
+      final ForumPage startPage = new ForumPage(driver);      
       long start_time = new Date().getTime();
       int numWeeksToPull = 15;
       startPage.start();

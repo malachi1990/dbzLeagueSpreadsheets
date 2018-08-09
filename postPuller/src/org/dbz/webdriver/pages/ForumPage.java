@@ -10,7 +10,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.pagefactory.ByChained;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -18,11 +17,10 @@ public class ForumPage {
 
     private WebDriver driver;
 
-    private final By finalCustLink = By.linkText("Final Customization");
-
-    private final By minorLeagueCustLink = By.linkText("Minor League Final Customization");
-
-    private static final String postLimit = "?x=100";
+    private static final By teamCustLink = By.linkText("Team Customization");
+    private static final By finalCustLink = By.linkText("Final Customization");
+    private static final By postText = By.className("content");
+    private static final By minorLeagueCustLink = By.linkText("Minor League Final Customization");
 
     public ForumPage() {
 
@@ -33,8 +31,8 @@ public class ForumPage {
     }
 
     public ForumPage start() {
-        driver.get("http://s4.zetaboards.com/Squees_Lair/index/");
-        pageWaitByElement(finalCustLink);
+        driver.get("https://www.tapatalk.com/groups/squees_lair/index.php");
+        pageWaitByElement(teamCustLink);
         return this;
     }
 
@@ -49,16 +47,14 @@ public class ForumPage {
     }
 
     public Map<String, List<String>> getNarutoLeagueTeamBuilds(List<String> teams, int weeks) {
-        ForumPage buildsPage = this.navigateToMajorLeagueFinalCustomization();
+        ForumPage buildsPage = this.navigateToNarutoLeagueFinalCustomization();
         return getAllTeamsBuilds(teams, weeks, buildsPage, "naruto");
     }
 
     public ForumPage navigateToMajorLeagueFinalCustomization() {
+        driver.findElements(teamCustLink).get(0).click();
         pageWaitByElement(finalCustLink);
-        String url = driver.findElements(finalCustLink).get(0).getAttribute("href");
-        url = url + "?x=20";
-        driver.get(url);
-//        driver.findElements(finalCustLink).get(0).click();
+        driver.findElement(finalCustLink).click();
         return new ForumPage(driver);
     }
 
@@ -75,61 +71,40 @@ public class ForumPage {
     }
 
     public ForumPage navigateToTeamPage(String teamName) throws TimeoutException {
-        By team = By.partialLinkText(teamName);
+        By team = By.linkText(teamName);
         try {
             pageWaitByElement(team);
-            String teamPageUrl = driver.findElements(team).get(0).getAttribute("href");
-            
-            if(!teamPageUrl.contains(postLimit)) {
-                teamPageUrl = teamPageUrl + postLimit;
+            driver.findElement(team).click();
+            pageWaitByElement(postText);
+            String url = driver.getCurrentUrl();
+            String [] parts = url.split("\\.");
+            if(teamName.equals("Afterlife")) {
+                parts[parts.length-2] = parts[parts.length-2] + "-s30";
+            } else {
+                parts[parts.length-2] = parts[parts.length-2] + "-s90";
             }
-            driver.get(teamPageUrl);
-//            driver.findElements(team).get(0).click();
-            pageWaitByElement(By.className("c_post"));
-            // String url = driver.getCurrentUrl();
-//            String url = goToPage(driver.getCurrentUrl(), 1);
+            String newUrl = "";
+            for(String part: parts) {
+                newUrl += part;
+                newUrl+= ".";
+            }
+            driver.get(newUrl);
+            pageWaitByElement(postText);
 
-            // System.out.println(newUrl.toString());
-//            driver.get(url);
-            // assume it's the team on the 2nd page
         } catch (Exception e) {
-            navigateToThreadPage(1);
-            pageWaitByElement(team);
-            driver.findElements(team).get(0).click();
 
         }
+        
         return new ForumPage(driver);
     }
 
     // since I'm the only one using this, remember that the page numbering is 0
     // based
     public ForumPage navigateToThreadPage(int pageNum) {
-        String page = String.valueOf(pageNum +1);
-        By pageToNavigateTo = By.partialLinkText(page);
-
-        // enforce that only one element is clicked
-        ByChained correctLink = new ByChained(By.className("cat-pages"), pageToNavigateTo);
+        String page = String.valueOf(pageNum+1);
+        By correctLink = By.linkText(page);
         driver.findElement(correctLink).click();
         return new ForumPage(driver);
-    }
-
-    private String goToPage(String url, int pageNum) {
-        String[] urlPart = url.split("/");
-        for(int i = 0; i < urlPart.length; i++) {
-            if(urlPart[i].length() == 1) {
-                urlPart[i] = Integer.toString(pageNum);
-            }
-        }
-        
-        StringBuilder newUrl = new StringBuilder();
-        for (String part : urlPart) {
-            newUrl.append(part).append("/");
-        }
-        if(!newUrl.toString().contains(postLimit)) {
-            newUrl.append(postLimit);
-        }
-        System.out.println("going to: " + newUrl.toString());
-        return newUrl.toString();
     }
 
     /**
@@ -139,30 +114,21 @@ public class ForumPage {
      */
 
     public List<String> getBuilds() {
-        return getAllBuilds(5);
+        return getAllBuilds(5, 1);
     }
 
-    public List<String> getAllBuilds(int numOfWeeks) {
+    public List<String> getAllBuilds(int numOfWeeks, int startPageNumber) {
         List<String> builds = new ArrayList<>();
         try {
-            //note that the page indexes will need to change as time goes by to reflect the teams posting more builds
-//            for (int pageIndex = 1; pageIndex <= 9; pageIndex++) {
-//                List<WebElement> posts = driver.findElements(By.className("c_post"));
-//                for (WebElement post : posts) {
-//                    builds.add(post.getText());
-//                }
-//                driver.get(goToPage(driver.getCurrentUrl(), (pageIndex + 1)));
-//            }
-//         
-            List<WebElement> posts = driver.findElements(By.className("c_post"));
-            int pageIndex = 1;
+            List<WebElement> posts = driver.findElements(postText);
+            int pageIndex = startPageNumber;
             do{
                 for (WebElement post : posts) {
                     builds.add(post.getText());
                 }
-                driver.get(goToPage(driver.getCurrentUrl(), (pageIndex + 1)));
+                navigateToThreadPage((pageIndex + 1));
                 pageIndex++;
-                posts = driver.findElements(By.className("c_post"));
+                posts = driver.findElements(postText);
             } while(posts.size() > 0);
             // assuming that if I'm falling into the catch block, it's because i
             // don't have a link to find
@@ -173,27 +139,30 @@ public class ForumPage {
 
         return builds;
     }
-
+ 
     private Map<String, List<String>> getAllTeamsBuilds(List<String> teams, int weeks, ForumPage buildsPage,
             String reportType) {
         Map<String, List<String>> builds = new HashMap<>();
         for (String team : teams) {
             System.out.println("Pulling team builds for: " + team);
             buildsPage = buildsPage.navigateToTeamPage(team);
-            List<String> teamBuilds = buildsPage.getAllBuilds(weeks);
+            int startPage = 9;
+            if(team.equals("Afterlife")) {
+                startPage = 3;
+            }
+            List<String> teamBuilds = buildsPage.getAllBuilds(weeks, startPage);
             builds.put(team, teamBuilds);
             if (reportType.equalsIgnoreCase("major")) {
                 buildsPage = buildsPage.navigateToMajorLeagueFinalCustomization();
             } else if (reportType.equalsIgnoreCase("minor")) {
                 buildsPage = buildsPage.navigateToMinorLeagueFinalCustomization();
-
             }
         }
         return builds;
     }
 
     public void pageWaitByElement(final By elementName) throws TimeoutException {
-        new WebDriverWait(driver, 30).until(ExpectedConditions.visibilityOfElementLocated(elementName));
+        new WebDriverWait(driver, 15).until(ExpectedConditions.visibilityOfElementLocated(elementName));
     }
 
 }
